@@ -1,0 +1,335 @@
+:root {
+  --bg: #0b0c10;
+  --panel: #12131a;
+  --border: #1e2030;
+  --text: #e8e9f1;
+  --muted: #9aa0b4;
+
+  --accent: #9b5cff;          /* Purple */
+  --accent-soft: rgba(155,92,255,0.18);
+  --accent-glow: rgba(155,92,255,0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  font-family: Inter, Poppins, system-ui, sans-serif;
+  color: var(--text);
+}
+
+.box {
+  width: 210px;
+  padding: 16px;
+  background: linear-gradient(180deg, #151627, #0f1018);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+  animation: panelIn 0.45s cubic-bezier(.16,.84,.44,1);
+}
+
+@keyframes panelIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.title {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  letter-spacing: 0.4px;
+}
+
+/* 🔢 SPEED INPUT */
+input {
+  width: 100%;
+  height: 46px;
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+  background: #0c0d14;
+  color: var(--accent);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  outline: none;
+  transition:
+    border 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.15s ease;
+}
+
+input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+  transform: scale(1.02);
+}
+
+/* ✨ Animate when value changes */
+input.bump {
+  animation: bump 0.25s cubic-bezier(.2,.8,.2,1);
+}
+
+@keyframes bump {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* ➕ ➖ BUTTONS */
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+button {
+  flex: 1;
+  height: 42px;
+  font-size: 20px;
+  border-radius: 14px;
+  border: none;
+  background: #1b1d2b;
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+button:hover {
+  background: #262945;
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+/* 💜 SAVE BUTTON (PURPLE PREMIUM) */
+.save {
+  margin-top: 16px;
+  height: 44px;
+  width: 100%;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(
+    135deg,
+    #b983ff,
+    #7f5af0
+  );
+  color: #0b0c10;
+  cursor: pointer;
+  box-shadow:
+    0 12px 30px var(--accent-glow);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.save:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 45px var(--accent-glow);
+}
+
+.save:active {
+  transform: scale(0.96);
+}
+/* input bump animation (already exists) */
+@keyframes bump {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+input.bump {
+  animation: bump 0.25s cubic-bezier(.2,.8,.2,1);
+}
+
+/* save button pulse animation */
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 12px 30px rgba(155,92,255,0.45); }
+  50% { transform: scale(1.05); box-shadow: 0 18px 40px rgba(155,92,255,0.55); }
+  100% { transform: scale(1); box-shadow: 0 12px 30px rgba(155,92,255,0.45); }
+}
+
+.save.pulse {
+  animation: pulse 0.35s ease-in-out;
+}
+/* Save button pulse + color animation */
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 12px 30px rgba(155,92,255,0.45); }
+  50% { transform: scale(1.05); box-shadow: 0 18px 40px rgba(0,200,255,0.55); }
+  100% { transform: scale(1); box-shadow: 0 12px 30px rgba(155,92,255,0.45); }
+}
+
+.save.pulse {
+  animation: pulse 0.35s ease-in-out;
+}
+
+/* Temporary sky-blue color on save */
+.save.saved {
+  background: linear-gradient(135deg, #00c8ff, #3fe0ff);
+  color: #0b0c10;
+}
+/* input bump animation */
+@keyframes bump {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+input.bump {
+  animation: bump 0.25s cubic-bezier(.2,.8,.2,1);
+}
+
+/* Save button pulse */
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 12px 30px rgba(155,92,255,0.45); }
+  50% { transform: scale(1.05); box-shadow: 0 18px 40px rgba(0,200,255,0.55); }
+  100% { transform: scale(1); box-shadow: 0 12px 30px rgba(155,92,255,0.45); }
+}
+
+.save.pulse {
+  animation: pulse 0.35s ease-in-out;
+}
+
+/* Warning shake animation */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
+}
+
+/* div.shake {
+  animation: shake 0.35s ease-in-out;
+} */
+
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+  animation: fadeSlide 1.2s ease-out;
+}
+
+
+.runner {
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #6A1B9A,
+    transparent
+  );
+  animation: runLine 1.5s linear infinite;
+}
+
+
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+.note {
+    white-space: pre-wrap; 
+  font-size: 12px;
+  color: #E0E0E0;
+  text-align: center;
+  opacity: 0.85;
+  margin-bottom: 10px;
+  min-height: 16px; /* prevents layout jump */
+}
+.save {
+  transition: all 0.3s ease;
+}
+
+.save.pulse {
+  transform: scale(1.1);
+  background-color: #4CAF50;
+  color: white;
+}
+.save {
+  transition: all 0.3s ease;
+  background-color:     #7f5af0; /* normal button color */
+  color: #000; /* normal text color */
+}
+
+.save.pulse {
+  transform: scale(1.1);
+}
+
+/* Prevent hover from affecting saved animation */
+.save:hover {
+  background-color: #f0f0f0; /* same as normal */
+  color: #000;
+}
+
+
+
+.toggle-wrap {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #ddd;
+  font-size: 13px;
+}
+
+.toggle {
+  width: 44px;
+  height: 22px;
+  background: #333;
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle.on {
+  background: #ff4d4d;
+}
+
+.toggle .knob {
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: left 0.3s;
+}
+
+.toggle.on .knob {
+  left: 24px;
+}

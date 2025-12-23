@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Tempo Controller (Video Speed Controller)",
+  "version": "1.0.1",
+  "description": "Set video speed with smooth popup and floating speed badge.",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
