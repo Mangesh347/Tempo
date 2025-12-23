@@ -4,17 +4,106 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy Policy - Tempo Controller</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-    h1 { color: #ff4d4d; }
-    p { margin-bottom: 16px; }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      color: #343a40;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 60px auto;
+      background: #ffffff;
+      padding: 40px 50px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      line-height: 1.7;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(to right, #ff4d4d, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: #ff4d4d;
+      margin-top: 30px;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #ff6b6b;
+      display: inline-block;
+      padding-bottom: 3px;
+    }
+
+    p, li {
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    a {
+      color: #ff4d4d;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.25rem; }
+    }
   </style>
 </head>
 <body>
-  <h1>Privacy Policy</h1>
-  <p>This extension, Tempo Controller (Video Speed Controller), does <strong>not collect any personal data</strong> from users.</p>
-  <p>All settings and speed preferences are stored locally in the browser using Chrome's <code>storage.local</code> API.</p>
-  <p>No information is sent to any server or third-party service.</p>
-  <p>By using this extension, you agree that it operates entirely on your device and respects your privacy.</p>
+  <div class="container">
+    <h1>Privacy Policy</h1>
+    <p>Tempo Controller (Video Speed Controller) is a Chrome extension that allows users to control video playback speed directly in the browser.</p>
+
+    <h2>Data Collection</h2>
+    <p>This extension <strong>does not</strong> collect, store, or transmit any personal data. All operations happen locally in your browser, ensuring your privacy is maintained.</p>
+
+    <h2>Permissions</h2>
+    <ul>
+      <li><strong>activeTab</strong>: Control video playback only after you interact with the extension popup.</li>
+      <li><strong>scripting</strong>: Inject scripts into the active tab only after your action.</li>
+      <li><strong>storage</strong>: Save your preferred playback speed locally in your browser.</li>
+    </ul>
+
+    <h2>Third-party Services</h2>
+    <p>This extension does not use any third-party services, tracking, or analytics. Everything runs locally in your browser.</p>
+
+    <h2>Usage</h2>
+    <p>All processing is done locally. No information about your browsing, videos, or activity is transmitted over the internet.</p>
+
+    <h2>Contact</h2>
+    <p>If you have questions or concerns regarding this privacy policy, please contact the developer through the <a href="https://github.com/Mangesh347/Tempo">GitHub repository</a>.</p>
+
+    <div class="footer">
+      <p><em>Last updated: December 2025</em></p>
+    </div>
+  </div>
 </body>
 </html>
