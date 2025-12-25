@@ -10,43 +10,41 @@
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
-      color: #1f2937;
+      background: linear-gradient(135deg, #2b024e, #3b0066);
+      color: #e0d7ff;
     }
 
     .container {
       max-width: 900px;
-      margin: 60px auto;
-      background: #ffffff;
-      padding: 50px 60px;
+      margin: 50px auto;
+      background: #1e1e2f;
+      padding: 40px 50px;
       border-radius: 14px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
       line-height: 1.8;
       transition: all 0.3s ease;
     }
 
     h1 {
-      font-size: 2.8rem;
-      background: linear-gradient(to right, #ff4d4d, #ff6b6b);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-size: 2.5rem;
+      color: #ff80ff;
       margin-bottom: 25px;
     }
 
     h2 {
-      font-size: 1.6rem;
-      color: #ff4d4d;
-      margin-top: 35px;
+      font-size: 1.5rem;
+      color: #d580ff;
+      margin-top: 30px;
       margin-bottom: 12px;
-      border-bottom: 3px solid #ff6b6b;
+      border-bottom: 2px solid #ff80ff;
       display: inline-block;
-      padding-bottom: 5px;
+      padding-bottom: 4px;
     }
 
     p, li {
       font-size: 1rem;
       margin-bottom: 14px;
-      color: #374151;
+      color: #dcd6f7;
     }
 
     ul {
@@ -54,7 +52,7 @@
     }
 
     a {
-      color: #ff4d4d;
+      color: #ff80ff;
       text-decoration: none;
       font-weight: 600;
     }
@@ -67,7 +65,7 @@
       text-align: center;
       margin-top: 50px;
       font-size: 0.9rem;
-      color: #6b7280;
+      color: #a9a3d0;
     }
 
     @media (max-width: 600px) {
@@ -82,7 +80,7 @@
 <body>
   <div class="container">
     <h1>Privacy Policy</h1>
-    <p>Tempo Controller (Video Speed Controller) is a Chrome extension that allows users to control and adjust the playback speed of HTML5 videos directly on web pages.</p>
+    <p>Tempo Controller (Video Speed Controller) is a Chrome extension that allows users to control the playback speed of HTML5 videos on any website using a floating badge.</p>
 
     <h2>Data Collection</h2>
     <p>This extension <strong>does not</strong> collect, store, or transmit any personal information. All functionality runs locally in your browser, ensuring full privacy.</p>
@@ -90,7 +88,7 @@
     <h2>Permissions</h2>
     <ul>
       <li><strong>storage</strong>: Saves user preferences such as selected playback speed, toggle state, and floating badge position. All data is stored locally and never transmitted.</li>
-      <li><strong>Host permissions (http://*/*, https://*/*)</strong>: Needed to detect and control HTML5 video elements on visited web pages. No website content or browsing data is collected or stored.</li>
+      <li><strong>Host permissions (&lt;all_urls&gt;)</strong>: Needed to detect and control HTML5 video elements on visited web pages. No website content or browsing data is collected or stored.</li>
     </ul>
 
     <h2>Third-party Services</h2>

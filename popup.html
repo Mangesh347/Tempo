@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,25 +5,15 @@
 </head>
 <body>
   <div class="box">
-    <!-- <div class="title">
-      Video Speed <span>Controller</span>
-    </div> -->
-
     <div class="runner"></div>
 
     <div class="note" id="typingNote">
       Choose The Playback Speed.
     </div>
-    
+
     <div class="runner"></div>
-    <input
-      type="number"
-      id="speed"
-      step="0.25"
-      min="0"
-      max="16"
-      value="1"
-    >
+
+    <input type="number" id="speed" step="0.25" min="0" max="16" value="1">
 
     <div class="buttons">
       <button id="minus">-</button>
@@ -33,15 +22,12 @@
 
     <button id="save" class="save">Save</button>
 
-
-        <!-- TOGGLE -->
     <div class="toggle-wrap">
       <span>Video Popup</span>
       <div class="toggle" id="toggle">
         <div class="knob"></div>
       </div>
     </div>
-
   </div>
 
   <script src="popup.js"></script>

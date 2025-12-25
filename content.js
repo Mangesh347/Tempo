@@ -1,71 +1,53 @@
-
 // (() => {
+//   if (window.__tempoInjected) return;
+//   window.__tempoInjected = true;
+
 //   let badge = null;
-//   let hideTimer = null;
-//   let isDragging = false;
-//   let offsetX = 0;
-//   let offsetY = 0;
+//   let speed = 1;
+//   let enabled = false;
+//   let popup = false;
+//   let lastVideo = null;
 
-//   let savedSpeed = 1;
-//   let speedEnabled = true;
-//   let badgeEnabled = true;
+//   const defaultNormalPos = { left: 10, top: 10 };
+//   const defaultFullPos = { left: 10, top: 10 };
+//   let posNormal = { ...defaultNormalPos };
+//   let posFull = { ...defaultFullPos };
 
-//   let posNormal = { x: window.innerWidth - 90, y: 14 };
-//   let posFullscreen = { x: window.innerWidth - 90, y: 60 };
+//   const isFull = () => !!document.fullscreenElement;
 
-//   let videoActive = false;
-//   let observer;
-
-// /* ================= SAFETY ================= */
-
-//   function alive() {
-//     return chrome?.runtime?.id;
+//   function getVideo() {
+//     return [...document.querySelectorAll('video')].find(v => v.videoWidth > 0 && v.videoHeight > 0);
 //   }
 
-// /* ================= VIDEO DETECTION (FIX) ================= */
-
-//   function getActiveVideo() {
-//     const videos = [...document.querySelectorAll('video')];
-//     return videos.find(v =>
-//       v.src &&
-//       v.videoWidth > 0 &&
-//       v.videoHeight > 0 &&
-//       v.offsetParent !== null &&
-//       !v.muted
-//     );
+//   function videoKey() {
+//     return `tempo_${location.hostname}`;
 //   }
 
-// /* ================= HELPERS ================= */
-
-//   function isFullscreen() {
-//     return !!document.fullscreenElement;
+//   function apply(v) {
+//     const video = getVideo();
+//     if (video) video.playbackRate = enabled ? v : 1;
 //   }
 
-//   function getPos() {
-//     return isFullscreen() ? posFullscreen : posNormal;
+//   function updateText() {
+//     if (badge) badge.textContent = enabled ? `${speed}x` : 'OFF';
 //   }
 
-//   function savePos(x, y) {
-//     if (!alive()) return;
-
-//     if (isFullscreen()) {
-//       posFullscreen = { x, y };
-//       chrome.storage.local.set({ badgePosFullscreen: posFullscreen });
-//     } else {
-//       posNormal = { x, y };
-//       chrome.storage.local.set({ badgePosNormal: posNormal });
-//     }
+//   function showBadge() {
+//     if (!badge) return;
+//     badge.style.opacity = '1';
 //   }
 
-// /* ================= SPEED ================= */
+//   function positionBadge() {
+//     const video = getVideo();
+//     if (!video || !badge) return;
 
-//   function applySpeed(speed) {
-//     document.querySelectorAll('video').forEach(v => {
-//       v.playbackRate = speed;
-//     });
+//     const rect = video.getBoundingClientRect();
+//     const p = isFull() ? posFull : posNormal;
+
+//     badge.style.position = 'absolute';
+//     badge.style.left = rect.left + p.left + 'px';
+//     badge.style.top = rect.top + p.top + 'px';
 //   }
-
-// /* ================= BADGE ================= */
 
 //   function removeBadge() {
 //     if (badge) {
@@ -75,203 +57,356 @@
 //   }
 
 //   function createBadge() {
-//     if (badge || !badgeEnabled) return;
+//     const video = getVideo();
+//     if (!video || badge || !popup) return;
 
-//     const pos = getPos();
+//     const key = videoKey();
+//     chrome.storage.local.get([key], d => {
+//       const site = d[key] || {};
+//       posNormal = site.posNormal || { ...defaultNormalPos };
+//       posFull = site.posFull || { ...defaultFullPos };
+//       enabled = site.enabled === true;
 
-//     badge = document.createElement('div');
-//     badge.textContent = speedEnabled ? `${savedSpeed}x` : 'OFF';
+//       apply(speed);
 
-//     badge.style.cssText = `
-//       position: fixed;
-//       top: ${pos.y}px;
-//       left: ${pos.x}px;
-//       padding: 8px 14px;
-//       background: #111;
-//       color: #ff4d4d;
-//       border-radius: 14px;
-//       font-size: 14px;
-//       font-weight: 600;
-//       cursor: pointer;
-//       z-index: 999999;
-//       user-select: none;
-//       opacity: 0;
-//       transition: opacity 0.25s ease;
-//     `;
+//       badge = document.createElement('div');
+//       badge.style.cssText = `
+//         padding: 8px 14px;
+//         background: #111;
+//         color: #ff4d4d;
+//         border-radius: 16px;
+//         font-size: 14px;
+//         font-weight: 600;
+//         cursor: pointer;
+//         z-index: 999999;
+//         user-select: none;
+//         opacity: 0;
+//         transition: opacity 0.25s ease;
+//       `;
 
-//     document.body.appendChild(badge);
+//       updateText();
+//       positionBadge();
 
-//     badge.onclick = () => {
-//       speedEnabled = !speedEnabled;
-//       applySpeed(speedEnabled ? savedSpeed : 1);
-//       updateBadge();
-//     };
+//       // ✅ ON/OFF TOGGLE
+//       badge.onclick = () => {
+//         enabled = !enabled;
+//         apply(speed);
+//         updateText();
+//         showBadge();
 
-//     badge.onmousedown = e => {
-//       isDragging = true;
-//       offsetX = e.clientX - badge.offsetLeft;
-//       offsetY = e.clientY - badge.offsetTop;
-//       e.preventDefault();
-//     };
+//         // save per-site
+//         chrome.storage.local.get([key], d => {
+//           const s = d[key] || {};
+//           s.enabled = enabled;
+//           chrome.storage.local.set({ [key]: s });
+//         });
+//       };
+
+//       document.body.appendChild(badge);
+//       showBadge();
+//     });
 //   }
 
-//   function updateBadge() {
-//     if (!badge) return;
-//     badge.textContent = speedEnabled ? `${savedSpeed}x` : 'OFF';
-//     badge.style.opacity = '1';
+//   // INITIAL LOAD
+//   chrome.storage.local.get(['speed', 'popup'], d => {
+//     speed = d.speed || 1;
+//     popup = d.popup === true;
+//     if (popup) createBadge();
+//   });
+
+//   // REAL-TIME STORAGE SYNC
+//   chrome.storage.onChanged.addListener(changes => {
+//     if (changes.speed) {
+//       speed = changes.speed.newValue;
+//       apply(speed);
+//       updateText();
+//       showBadge();
+//     }
+
+//     if (changes.popup) {
+//       popup = changes.popup.newValue;
+//       popup ? createBadge() : removeBadge();
+//     }
+
+//     if (changes[videoKey()]) {
+//       enabled = changes[videoKey()].newValue?.enabled === true;
+//       apply(speed);
+//       updateText();
+//       showBadge();
+//     }
+//   });
+
+//   // SPA / VIDEO SWITCH DETECTION
+//   const observer = new MutationObserver(() => {
+//     const video = getVideo();
+//     if (!video) return;
+
+//     if (video !== lastVideo) {
+//       lastVideo = video;
+//       removeBadge();
+//       if (popup) createBadge();
+//     }
+
+//     if (badge) positionBadge();
+//   });
+
+//   observer.observe(document.body, { childList: true, subtree: true });
+
+//   document.addEventListener('fullscreenchange', () => {
+//     if (badge) positionBadge();
+//   });
+// })();
+
+// ===============================================================================
+
+// (() => {
+//   if (window.__tempoInjected) return;
+//   window.__tempoInjected = true;
+
+//   let badge = null;
+//   let speed = 1;
+//   let enabled = false;
+//   let popup = false;
+//   let lastVideo = null;
+
+//   const defaultNormalPos = { left: 10, top: 10 };
+//   const defaultFullPos = { left: 10, top: 10 };
+//   let posNormal = { ...defaultNormalPos };
+//   let posFull = { ...defaultFullPos };
+
+//   let hideTimer = null;
+
+//   const isFull = () => !!document.fullscreenElement;
+
+//   function getVideo() {
+//     return [...document.querySelectorAll('video')].find(v => v.videoWidth > 0 && v.videoHeight > 0);
+//   }
+
+//   function videoKey() {
+//     return `tempo_${location.hostname}`;
+//   }
+
+//   function apply(v) {
+//     const video = getVideo();
+//     if (video) video.playbackRate = enabled ? v : 1;
+//   }
+
+//   function updateText() {
+//     if (badge) badge.textContent = enabled ? `${speed}x` : 'OFF';
 //   }
 
 //   function showBadge() {
 //     if (!badge) return;
-
 //     badge.style.opacity = '1';
 //     clearTimeout(hideTimer);
-
 //     hideTimer = setTimeout(() => {
 //       if (badge) badge.style.opacity = '0';
-//     }, 1800);
+//     }, 2000);
 //   }
 
-// /* ================= DRAG ================= */
+//   function positionBadge() {
+//     const video = getVideo();
+//     if (!video || !badge) return;
 
-//   function onMouseMove(e) {
-//     if (!isDragging || !badge) return;
+//     const rect = video.getBoundingClientRect();
+//     const p = isFull() ? posFull : posNormal;
 
-//     const x = e.clientX - offsetX;
-//     const y = e.clientY - offsetY;
-
-//     badge.style.left = x + 'px';
-//     badge.style.top = y + 'px';
-
-//     savePos(x, y);
+//     badge.style.position = 'absolute';
+//     badge.style.left = rect.left + p.left + 'px';
+//     badge.style.top = rect.top + p.top + 'px';
 //   }
 
-//   function onMouseUp() {
-//     isDragging = false;
+//   function removeBadge() {
+//     if (badge) {
+//       badge.remove();
+//       badge = null;
+//     }
 //   }
 
-// /* ================= VIDEO CONTROL ================= */
+//   function createBadge() {
+//     const video = getVideo();
+//     if (!video || badge || !popup) return;
 
-//   function videoOn() {
-//     if (videoActive) return;
-//     videoActive = true;
+//     const key = videoKey();
+//     chrome.storage.local.get([key], d => {
+//       const site = d[key] || {};
+//       posNormal = site.posNormal || { ...defaultNormalPos };
+//       posFull = site.posFull || { ...defaultFullPos };
+//       enabled = site.enabled === true;
 
-//     applySpeed(savedSpeed);
-//     createBadge();
+//       apply(speed);
 
-//     document.addEventListener('mousemove', showBadge);
-//     window.addEventListener('mousemove', onMouseMove);
-//     window.addEventListener('mouseup', onMouseUp);
+//       badge = document.createElement('div');
+//       badge.style.cssText = `
+//         padding: 8px 14px;
+//         background: #111;
+//         color: #ff4d4d;
+//         border-radius: 16px;
+//         font-size: 14px;
+//         font-weight: 600;
+//         cursor: pointer;
+//         z-index: 999999;
+//         user-select: none;
+//         opacity: 0;
+//         transition: opacity 0.3s ease;
+//       `;
+
+//       updateText();
+//       positionBadge();
+//       showBadge();
+
+//       // ON/OFF TOGGLE
+//       badge.onclick = () => {
+//         enabled = !enabled;
+//         apply(speed);
+//         updateText();
+
+//         chrome.storage.local.get([key], d => {
+//           const s = d[key] || {};
+//           s.enabled = enabled;
+//           chrome.storage.local.set({ [key]: s });
+//         });
+
+//         showBadge();
+//       };
+
+//       document.body.appendChild(badge);
+//     });
 //   }
 
-//   function videoOff() {
-//     videoActive = false;
-//     removeBadge();
-
-//     document.removeEventListener('mousemove', showBadge);
-//     window.removeEventListener('mousemove', onMouseMove);
-//     window.removeEventListener('mouseup', onMouseUp);
-//   }
-
-// /* ================= FULLSCREEN CHANGE ================= */
-
-//   document.addEventListener('fullscreenchange', () => {
-//     if (!badge) return;
-//     const pos = getPos();
-//     badge.style.left = pos.x + 'px';
-//     badge.style.top = pos.y + 'px';
+//   // INITIAL LOAD
+//   chrome.storage.local.get(['speed', 'popup'], d => {
+//     speed = d.speed || 1;
+//     popup = d.popup === true;
+//     if (popup) createBadge();
 //   });
 
-// /* ================= INIT ================= */
-
-//   if (!alive()) return;
-
-//   chrome.storage.local.get(
-//     ['speed', 'enabled', 'badgePosNormal', 'badgePosFullscreen'],
-//     data => {
-//       if (!alive()) return;
-
-//       savedSpeed = +data.speed || 1;
-//       badgeEnabled = data.enabled !== false;
-
-//       if (data.badgePosNormal) posNormal = data.badgePosNormal;
-//       if (data.badgePosFullscreen) posFullscreen = data.badgePosFullscreen;
-
-//       observer = new MutationObserver(() => {
-//         const video = getActiveVideo();
-//         video ? videoOn() : videoOff();
-//       });
-
-//       observer.observe(document.body, { childList: true, subtree: true });
+//   // REAL-TIME STORAGE SYNC
+//   chrome.storage.onChanged.addListener(changes => {
+//     if (changes.speed) {
+//       speed = changes.speed.newValue;
+//       apply(speed);
+//       updateText();
+//       showBadge();
 //     }
-//   );
+
+//     if (changes.popup) {
+//       popup = changes.popup.newValue;
+//       popup ? createBadge() : removeBadge();
+//     }
+
+//     if (changes[videoKey()]) {
+//       enabled = changes[videoKey()].newValue?.enabled === true;
+//       apply(speed);
+//       updateText();
+//       showBadge();
+//     }
+//   });
+
+//   // SPA / VIDEO SWITCH DETECTION
+//   const observer = new MutationObserver(() => {
+//     const video = getVideo();
+//     if (!video) return;
+
+//     if (video !== lastVideo) {
+//       lastVideo = video;
+//       removeBadge();
+//       if (popup) createBadge();
+//     }
+
+//     if (badge) positionBadge();
+//   });
+
+//   observer.observe(document.body, { childList: true, subtree: true });
+
+//   document.addEventListener('fullscreenchange', () => {
+//     if (badge) positionBadge();
+//   });
+
+//   // MOUSE MOVE DETECT
+//   let mouseTimer;
+//   document.addEventListener('mousemove', () => {
+//     if (badge) badge.style.opacity = '1';
+//     clearTimeout(mouseTimer);
+//     mouseTimer = setTimeout(() => {
+//       if (badge) badge.style.opacity = '0';
+//     }, 1500);
+//   });
 // })();
 (() => {
+  if (window.__tempoInjected) return;
+  window.__tempoInjected = true;
+
   let badge = null;
+  let speed = 1;
+  let enabled = false;
+  let popup = false;
+  let lastVideo = null;
+
+  const defaultNormalPos = { left: 10, top: 10 };
+  const defaultFullPos = { left: 10, top: 10 };
+  let posNormal = { ...defaultNormalPos };
+  let posFull = { ...defaultFullPos };
+
   let hideTimer = null;
-  let isDragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
+  let mouseTimer = null;
 
-  let savedSpeed = 1;
-  let speedEnabled = false; // Start as OFF
-  let badgeEnabled = true;
+  const isFull = () => !!document.fullscreenElement;
 
-  let posNormal = { x: window.innerWidth - 90, y: 14 };
-  let posFullscreen = { x: window.innerWidth - 90, y: 60 };
-
-  let videoActive = false;
-  let observer;
-
-/* ================= SAFETY ================= */
-
-  function alive() {
-    return chrome?.runtime?.id;
+  function getVideo() {
+    // Select visible HTML5 video elements with size > 0
+    return [...document.querySelectorAll('video')]
+      .filter(v => v.videoWidth > 0 && v.videoHeight > 0)[0];
   }
 
-/* ================= VIDEO DETECTION ================= */
-
-  function getActiveVideo() {
-    const videos = [...document.querySelectorAll('video')];
-    return videos.find(v =>
-      v.src &&
-      v.videoWidth > 0 &&
-      v.videoHeight > 0 &&
-      v.offsetParent !== null
-    );
+  function videoKey() {
+    return `tempo_${location.hostname}`;
   }
 
-/* ================= HELPERS ================= */
-
-  function isFullscreen() {
-    return !!document.fullscreenElement;
+  function apply(v) {
+    const video = getVideo();
+    if (video) video.playbackRate = enabled ? v : 1;
   }
 
-  function getPos() {
-    return isFullscreen() ? posFullscreen : posNormal;
-  }
+  function updateText(animated = true) {
+    if (!badge) return;
+    if (animated) {
+      // Smooth number transition
+      const current = parseFloat(badge.textContent.replace('x','')) || 0;
+      const target = enabled ? speed : 0;
+      let start = null;
 
-  function savePos(x, y) {
-    if (!alive()) return;
-
-    if (isFullscreen()) {
-      posFullscreen = { x, y };
-      chrome.storage.local.set({ badgePosFullscreen: posFullscreen });
+      function step(timestamp) {
+        if (!start) start = timestamp;
+        const progress = Math.min((timestamp - start)/200, 1); // 200ms animation
+        const value = current + (target - current) * progress;
+        badge.textContent = enabled ? value.toFixed(2) + 'x' : 'OFF';
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
     } else {
-      posNormal = { x, y };
-      chrome.storage.local.set({ badgePosNormal: posNormal });
+      badge.textContent = enabled ? speed.toFixed(2) + 'x' : 'OFF';
     }
   }
 
-/* ================= SPEED ================= */
-
-  function applySpeed(speed) {
-    document.querySelectorAll('video').forEach(v => {
-      v.playbackRate = speed;
-    });
+  function showBadge() {
+    if (!badge) return;
+    badge.style.opacity = '1';
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => { badge.style.opacity = '0'; }, 2000);
   }
 
-/* ================= BADGE ================= */
+  function positionBadge() {
+    const video = getVideo();
+    if (!video || !badge) return;
+
+    const rect = video.getBoundingClientRect();
+    const p = isFull() ? posFull : posNormal;
+
+    badge.style.position = 'absolute';
+    badge.style.left = rect.left + p.left + 'px';
+    badge.style.top = rect.top + p.top + 'px';
+  }
 
   function removeBadge() {
     if (badge) {
@@ -281,135 +416,104 @@
   }
 
   function createBadge() {
-    if (badge || !badgeEnabled) return;
+    const video = getVideo();
+    if (!video || badge || !popup) return;
 
-    const pos = getPos();
+    const key = videoKey();
+    chrome.storage.local.get([key], d => {
+      const site = d[key] || {};
+      posNormal = site.posNormal || { ...defaultNormalPos };
+      posFull = site.posFull || { ...defaultFullPos };
+      enabled = site.enabled === true;
 
-    badge = document.createElement('div');
-    badge.textContent = speedEnabled ? `${savedSpeed}x` : 'OFF';
+      apply(speed);
 
-    badge.style.cssText = `
-      position: fixed;
-      top: ${pos.y}px;
-      left: ${pos.x}px;
-      padding: 8px 14px;
-      background: #111;
-      color: #ff4d4d;
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      z-index: 999999;
-      user-select: none;
-      opacity: 0;
-      transition: opacity 0.25s ease;
-    `;
+      badge = document.createElement('div');
+      badge.style.cssText = `
+        padding: 8px 14px;
+        background: #111;
+        color: #ff4d4d;
+        border-radius: 16px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        z-index: 999999;
+        user-select: none;
+        opacity: 0;
+        transition: opacity 0.3s ease, left 0.2s ease, top 0.2s ease;
+      `;
 
-    document.body.appendChild(badge);
+      updateText(false);
+      positionBadge();
+      showBadge();
 
-    // Toggle speed only on click
-    badge.onclick = () => {
-      speedEnabled = !speedEnabled;
-      applySpeed(speedEnabled ? savedSpeed : 1);
-      updateBadge();
-    };
+      badge.onclick = () => {
+        enabled = !enabled;
+        apply(speed);
+        updateText();
+        chrome.storage.local.get([key], d => {
+          const s = d[key] || {};
+          s.enabled = enabled;
+          chrome.storage.local.set({ [key]: s });
+        });
+        showBadge();
+      };
 
-    badge.onmousedown = e => {
-      isDragging = true;
-      offsetX = e.clientX - badge.offsetLeft;
-      offsetY = e.clientY - badge.offsetTop;
-      e.preventDefault();
-    };
+      document.body.appendChild(badge);
+    });
   }
 
-  function updateBadge() {
-    if (!badge) return;
-    badge.textContent = speedEnabled ? `${savedSpeed}x` : 'OFF';
-    badge.style.opacity = '1';
-  }
-
-  function showBadge() {
-    if (!badge) return;
-
-    badge.style.opacity = '1';
-    clearTimeout(hideTimer);
-
-    hideTimer = setTimeout(() => {
-      if (badge) badge.style.opacity = '0';
-    }, 1800);
-  }
-
-/* ================= DRAG ================= */
-
-  function onMouseMove(e) {
-    if (!isDragging || !badge) return;
-
-    const x = e.clientX - offsetX;
-    const y = e.clientY - offsetY;
-
-    badge.style.left = x + 'px';
-    badge.style.top = y + 'px';
-
-    savePos(x, y);
-  }
-
-  function onMouseUp() {
-    isDragging = false;
-  }
-
-/* ================= VIDEO CONTROL ================= */
-
-  function videoOn() {
-    if (videoActive) return;
-    videoActive = true;
-
-    // Do NOT auto-apply speed
-    createBadge();
-
-    document.addEventListener('mousemove', showBadge);
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-  }
-
-  function videoOff() {
-    videoActive = false;
-    removeBadge();
-
-    document.removeEventListener('mousemove', showBadge);
-    window.removeEventListener('mousemove', onMouseMove);
-    window.removeEventListener('mouseup', onMouseUp);
-  }
-
-/* ================= FULLSCREEN CHANGE ================= */
-
-  document.addEventListener('fullscreenchange', () => {
-    if (!badge) return;
-    const pos = getPos();
-    badge.style.left = pos.x + 'px';
-    badge.style.top = pos.y + 'px';
+  // INITIAL LOAD
+  chrome.storage.local.get(['speed', 'popup'], d => {
+    speed = d.speed || 1;
+    popup = d.popup === true;
+    if (popup) createBadge();
   });
 
-/* ================= INIT ================= */
-
-  if (!alive()) return;
-
-  chrome.storage.local.get(
-    ['speed', 'enabled', 'badgePosNormal', 'badgePosFullscreen'],
-    data => {
-      if (!alive()) return;
-
-      savedSpeed = +data.speed || 1;
-      badgeEnabled = data.enabled !== false;
-
-      if (data.badgePosNormal) posNormal = data.badgePosNormal;
-      if (data.badgePosFullscreen) posFullscreen = data.badgePosFullscreen;
-
-      observer = new MutationObserver(() => {
-        const video = getActiveVideo();
-        video ? videoOn() : videoOff();
-      });
-
-      observer.observe(document.body, { childList: true, subtree: true });
+  // REAL-TIME STORAGE SYNC
+  chrome.storage.onChanged.addListener(changes => {
+    if (changes.speed) {
+      speed = changes.speed.newValue;
+      apply(speed);
+      updateText();
+      showBadge();
     }
-  );
+    if (changes.popup) {
+      popup = changes.popup.newValue;
+      popup ? createBadge() : removeBadge();
+    }
+    if (changes[videoKey()]) {
+      enabled = changes[videoKey()].newValue?.enabled === true;
+      apply(speed);
+      updateText();
+      showBadge();
+    }
+  });
+
+  // SPA / VIDEO SWITCH DETECTION
+  const observer = new MutationObserver(() => {
+    const video = getVideo();
+    if (!video) return;
+
+    if (video !== lastVideo) {
+      lastVideo = video;
+      removeBadge();
+      if (popup) createBadge();
+    }
+
+    if (badge) positionBadge();
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  // FULLSCREEN CHANGE
+  document.addEventListener('fullscreenchange', () => {
+    if (badge) positionBadge();
+  });
+
+  // MOUSE MOVE FADE
+  document.addEventListener('mousemove', () => {
+    if (badge) badge.style.opacity = '1';
+    clearTimeout(mouseTimer);
+    mouseTimer = setTimeout(() => { if (badge) badge.style.opacity = '0'; }, 1500);
+  });
 })();
